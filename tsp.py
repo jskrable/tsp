@@ -84,6 +84,7 @@ def showCities():
 	for i, val in enumerate(cities):
 		print(val.name, val.coords)
 
+# plot map of cities
 def plotTSP(cities, complete):
 	x = []
 	y = []
@@ -114,6 +115,6 @@ c = newCity('c')
 
 showCities()
 popDist()
-print(dist_matrix)
+plotTSP(cities,False)
 
 
