@@ -1,8 +1,11 @@
-import random
+import random, sys
+from dataclasses import dataclass
+import matplotlib.pyplot as plt
 
 # init globals
 cities = []
 dist_matrix = {}
+path = []
 
 # function to get random coordinates
 def randCoords():
@@ -13,7 +16,7 @@ def dist(a,b):
 	x = abs(a[0]-b[0])
 	y = abs(a[1]-b[1])
 	return int((x**2 + y**2)**0.5)
-
+"""
 # object class to hold a city
 class City(object):
 
@@ -25,6 +28,38 @@ class City(object):
 	# add to global city list
 	def addToList(self):
 		cities.append(self)
+
+"""
+# dataclass version
+@dataclass
+class City:
+
+	name : str
+	coords : (int, int)
+
+	def addToList(self):
+		cities.append(self)
+
+@dataclass
+class Problem:
+
+	initial : bool
+	goal : bool
+
+
+@dataclass
+class State:
+
+	path : list
+	actions : list
+
+@dataclass
+class Node:
+
+	depth : int
+	parent : object
+	state : object
+
 
 # populates global distance matrix
 def popDist():
@@ -49,13 +84,31 @@ def showCities():
 	for i, val in enumerate(cities):
 		print(val.name, val.coords)
 
+def plotTSP(cities):
+	x = []
+	y = []
+	for city in cities:
+		x.append(city.coords[0])
+		y.append(city.coords[1])
+	plt.plot(x,y,'ro')
+	plt.show()
+
 """
 main: create three cities and display their info
+"""
+size = int(sys.argv[1])
+
+for i in range(size):
+	i = newCity(i)
+
 """
 a = newCity('a')
 b = newCity('b')
 c = newCity('c')
+"""
 
 showCities()
+popDist()
+print(dist_matrix)
 
 
