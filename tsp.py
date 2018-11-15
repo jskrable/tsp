@@ -84,13 +84,18 @@ def showCities():
 	for i, val in enumerate(cities):
 		print(val.name, val.coords)
 
-def plotTSP(cities):
+def plotTSP(cities, complete):
 	x = []
 	y = []
 	for city in cities:
 		x.append(city.coords[0])
 		y.append(city.coords[1])
-	plt.plot(x,y,'ro')
+	if complete:
+		x.append(cities[0].coords[0])
+		y.append(cities[0].coords[1])	
+		plt.plot(x,y,'ro-')
+	else:
+		plt.plot(x,y,'ro')
 	plt.show()
 
 """
