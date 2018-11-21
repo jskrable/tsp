@@ -1,3 +1,9 @@
+"""
+tsp.py
+10-29-2018
+jack skrable
+"""
+
 import random, sys, argparse
 from dataclasses import dataclass
 import matplotlib.pyplot as plt
@@ -27,16 +33,16 @@ def rand(size):
 
 # function to calculate euclidian distance
 def dist(a,b):
-	x = abs(a[0]-b[0])
-	y = abs(a[1]-b[1])
+	x = abs(a.x-b.x)
+	y = abs(a.y-b.y)
 	return int((x**2 + y**2)**0.5)
 
 # function to calc total tour dist
 def tourDist(tour):
 	d = 0
 	for i in range(len(tour)-1):
-		a = (cities[i].x,cities[i].y)
-		b = (cities[i+1].x,cities[i+1].y)
+		a = cities[i]
+		b = cities[i+1]
 		d = d + dist(a,b)
 	return d
 
@@ -70,7 +76,6 @@ class Node:
 	depth: int
 	parent: object
 	state: object
-"""
 
 # populates global distance matrix
 def popDist():
@@ -82,13 +87,14 @@ def popDist():
 			b = (cities[j].x,cities[j].y)
 			dist_matrix[i,j] = dist(a,b)
 			dist_matrix[j,i] = dist_matrix[i,j]
+"""
 
 # add new city in random location
 def newCity(c):
 	global cities
 	c = City(c,rand(100),rand(100))
 	c.addToList()
-	popDist()
+	# popDist()
 	return c
 
 # show list of cities
@@ -144,7 +150,7 @@ print('total tour distance is: ')
 print(tourDist(tour))
 
 showCities()
-popDist()
+# popDist()
 # print(dist_matrix)
 plotTSP(cities,False)
 plotTSP(tour,True)
