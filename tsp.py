@@ -133,7 +133,7 @@ def anneal(tour, temp):
 	else:
 		i = 1
 		# simulations per temp
-		while i <= 100:
+		for i in range(100):
 			old_tour = tour
 			old_cost = cost(old_tour)
 			new_tour = neighbor(old_tour)
@@ -143,8 +143,6 @@ def anneal(tour, temp):
 
 			if ap > random.random():
 				tour = new_tour
-
-			i +=1
 
 		temp = temp * alpha
 		anneal(tour,temp)
@@ -213,11 +211,11 @@ if __name__ == '__main__':
 	print('initial cost of random tour is ' + str(cost(tour)))
 	# solve w/ annealing
 	if report:
-		cProfile.run('anneal(tour,1.0)')
+		tour = cProfile.run('anneal(tour,1.0)')
 	else:
 		tour = anneal(tour,1.0)
 
-	print('cost of solved tour is ' + str(cost(tour)))
+	#print('cost of solved tour is ' + str(cost(tour)))
 
 	# show solved tour
 	plotTSP(tour,True)
