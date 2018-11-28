@@ -92,7 +92,7 @@ def plotTSP(cities, complete):
 		x.append(city.x)
 		y.append(city.y)
 		# add city labels
-		plt.annotate(xy = [city.x,city.y], s = ' ' + str(city.name))
+		#plt.annotate(xy = [city.x,city.y], s = ' ' + str(city.name))
 	if complete:
 		# add trip back to source
 		x.append(cities[0].x)
@@ -112,29 +112,60 @@ def neighbor(tour):
 	tour[a], tour[b] = tour[b], tour[a]
 	return tour
 
+# function to get acceptance prob
+def acceptance(old, new, temp):
+	# perfect prob if new is better
+	if new < old:
+		return 1.0
+	# otherwise base on difference
+	else:
+		return math.exp((old - new)/temp)
+
 # solve problem using simulated annealing
-def anneal(tour):
-	best_tour = tour
-	old_cost = cost(tour)
-	temp = 1.0
-	min_temp = 0.00001
+def anneal(tour, temp):
+
 	# TODO play w this
-	alpha = 0.99
+	alpha = 0.9
+	min_temp = 0.0001
+
+	if temp <= min_temp:
+		return tour
+	else:
+		i = 1
+		# simulations per temp
+		while i <= 100:
+			old_tour = tour
+			old_cost = cost(old_tour)
+			new_tour = neighbor(old_tour)
+			new_cost = cost(new_tour)
+
+			ap = acceptance(old_cost,new_cost,temp)
+
+			if ap > random.random():
+				tour = new_tour
+
+			i +=1
+
+		temp = temp * alpha
+		anneal(tour,temp)
+
+	"""
 	while temp > min_temp:
 		i = 1
 		# TODO play w this
-		while i <= 10000:
+		while i <= 100:
 			new_tour = neighbor(tour)
 			new_cost = cost(new_tour)
-			ap = round(math.e**((new_cost-old_cost)/temp), 20)
+			ap = acceptance(old_cost,new_cost,temp)
 			if ap > random.random():
 				tour = new_tour
 				old_cost = new_cost
-			if new_cost > cost(best_tour):
+			if new_cost < cost(best_tour):
 				best_tour = new_tour
 			i += 1
 		temp = temp * alpha
 	return best_tour
+	"""
 
 
 
@@ -154,40 +185,39 @@ def mcmc(cities,iterations):
 """
 main: create three cities and display their info
 """
-args = argParser()
-size = args[0]
-iterations = args[1]
-report = args[2]
 
-# add all citites
-for i in range(size):
-	i = newCity(i)
+if __name__ == '__main__':
 
-# create initial tour visiting each city in order of creation
-tour = []
-for city in cities:
-	tour.append(city)
-#print('total tour distance is: ')
-#print(cost(tour))
-# print list of cities
-# showCities()
-# plot cities
-plotTSP(cities,False)
+	args = argParser()
+	size = args[0]
+	iterations = args[1]
+	report = args[2]
 
-# randomize tour
-random.shuffle(tour)
-print('initial cost of random tour is ')
-print(cost(tour))
-# solve w/ annealing
-if report:
-	cProfile.run('anneal(tour)')
-else:
-	tour = anneal(tour)
-print('cost of solved tour is ')
-print(cost(tour))
+	# add all cities
+	for i in range(size):
+		i = newCity(i)
 
-# show solved tour
-plotTSP(tour,True)
+	# create initial tour visiting each city in order of creation
+	tour = []
+	for city in cities:
+		tour.append(city)
+	#print('total tour distance is: ')
+	#print(cost(tour))
+	# print list of cities
+	# showCities()
+	# plot cities
+	plotTSP(cities,False)
 
+	# randomize tour
+	random.shuffle(tour)
+	print('initial cost of random tour is ' + str(cost(tour)))
+	# solve w/ annealing
+	if report:
+		cProfile.run('anneal(tour,1.0)')
+	else:
+		tour = anneal(tour,1.0)
 
-sum
+	print('cost of solved tour is ' + str(cost(tour)))
+
+	# show solved tour
+	plotTSP(tour,True)
