@@ -4,18 +4,29 @@ tsp.py
 jack skrable
 """
 
-import random, sys, argparse, math, cProfile, copy
+import random, sys, argparse, math, cProfile, copy, matplotlib.pyplot as plt
 from dataclasses import dataclass
-from timeit import default_timer as timer
-import matplotlib.pyplot as plt
+from timeit import default_timer as timer 
 
 # init globals
-cities = []
+CITIES = []
 dist_matrix = {}
 path = []
 
+# dataclass for cities
+@dataclass
+class City:
+
+	name: str
+	x: int
+	y: int
+
+	# add to global list
+	def add_to_list(self):
+		CITIES.append(self)
+
 # function to parse arguments sent to CLI
-def argParser():
+def arg_parser():
 	# setup argument parsing with description and -h method
 	parser = argparse.ArgumentParser(description='Solve the traveling salesman problem using Markov Chain Monte Carlo Method')
 	# add size int
@@ -24,13 +35,18 @@ def argParser():
 	# add iterations int
 	parser.add_argument('-i','--iterations',default=10000,type=int,nargs='?',
 						help='the number of simulations to run')
-
-	# add iterations int
+	# add annealing switch
+	parser.add_argument('-a','--sa',default=True,type=bool,nargs='?',
+						help='use simulated annealing method')
+	# add mcmc switch
+	parser.add_argument('-m','--mcmc',default=False,type=bool,nargs='?',
+						help='use markov chain monte carlo method')
+	# add reporting switch
 	parser.add_argument('-r','--report',default=False,type=bool,nargs='?',
 						help='turn on code performance reporting')
 	#parse args and return
 	args = parser.parse_args()
-	return args.size, args.iterations, args.report
+	return args
 
 # function to get random coordinates
 def rand(size):
@@ -57,34 +73,23 @@ def cost(tour):
 
 	return d
 
-# dataclass version
-@dataclass
-class City:
-
-	name: str
-	x: float
-	y: float
-
-	def addToList(self):
-		cities.append(self)
-
 # add new city in random location
-def newCity(c, n):
-	global cities
+def new_city(c, n):
+	global CITIES
 	c = City(c,rand(n*10),rand(n*10))
-	c.addToList()
+	c.add_to_list()
 	# popDist()
 	return c
 
 # show list of cities
-def showCities():
-	global cities 
+def show_cities():
+	global CITIES 
 	print('Here is a list of the cities and their coordinates: ')
-	for i, val in enumerate(cities):
+	for i, val in enumerate(CITIES):
 		print(val.name, (val.x, val.y))
 
 # plot map of cities
-def plotTSP(cities, complete):
+def plot_tsp(cities, complete):
 	# empty arrays for coords
 	x = []
 	y = []
@@ -161,6 +166,7 @@ def anneal(tour, temp):
 
 
 """
+TODO WRITE THIS DAMN THING
 # solve problem using mcmc
 def mcmc(cities,iterations):
 	# get initial tour in order of city name
@@ -172,20 +178,54 @@ def mcmc(cities,iterations):
 	for i in range(iterations):
 """
 
-def solve(tour,type,report):
+# function to run a given algorithm
+def run(tour,algorithm,report):
 
+	# set function to use
+	function = anneal if algorithm == 'sa' else mcmc
+
+	# init results
+	results = {}
 	start = timer()
-	if type == 'anneal':
-			if report:
-				tour = cProfile.run('anneal(tour,1.0)')
-			else:
-				tour = anneal(tour,1.0)
-			end = timer()
-			duration = end - start
-			return tour, duration
-	elif type == 'mcmc':
-		return 0
 
+	# check reporting switch
+	if report:
+		tour = cProfile.run("'"+function+"'(tour,1.0)'")
+	else:
+		# TODO update variable to include MCMC
+		tour = function(tour,1.0)
+	end = timer()
+	dur = end - start
+
+	# update results
+	results.update({algorithm: {
+							'tour': tour,
+							'duration': dur,
+							'cost': cost(tour)
+							}
+						})
+
+	return results
+
+# function to solve tsp
+def solve(tour,sa,mcmc,report):
+
+	results = {}
+	
+	# use both and compare
+	if sa and mcmc:
+		results.update(run(tour,'sa',report))
+		results.update(run(tour,'mcmc',report))
+
+	# use simulated annealing
+	elif sa:
+		results.update(run(tour,'sa',report))
+
+	# use markov chain monte carlo
+	elif mcmc:
+		results.update(run(tour,'mcmc',report))
+
+	return results
 
 """
 main: create three cities and display their info
@@ -193,34 +233,28 @@ main: create three cities and display their info
 
 if __name__ == '__main__':
 
-	args = argParser()
-	size = args[0]
-	iterations = args[1]
-	report = args[2]
-
+	args = arg_parser()
+	print(args)
 	# add all cities
-	for i in range(size):
-		i = newCity(i, size)
+	for i in range(args.size):
+		i = new_city(i, args.size)
 
 	# create initial tour visiting each city in order of creation
 	tour = []
-	for city in cities:
+	for city in CITIES:
 		tour.append(city)
-	#print('total tour distance is: ')
-	#print(cost(tour))
-	# print list of cities
-	# showCities()
-	# plot cities
-	plotTSP(cities,False)
+	plot_tsp(CITIES,False)
 
 	# randomize tour
 	random.shuffle(tour)
 	print('initial cost of random tour is ' + str(cost(tour)))
-	# solve w/ annealing
-	tour, duration = solve(tour,'anneal',report)
 
-	print('cost of solved tour is ' + str(cost(tour)))
-	print('time to solve was ' + str(duration) + ' seconds')
+	# solve
+	results = solve(tour,args.sa,args.mcmc,args.report)
+	
+	print('cost of solved tour is ' + str(results['sa']['cost']))
+	print('time to solve was ' + str(results['sa']['duration']) + ' seconds')
 
 	# show solved tour
-	plotTSP(tour,True)
+	plot_tsp(results['sa']['tour'],True)
+	
