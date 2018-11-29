@@ -179,7 +179,7 @@ def mcmc(cities,iterations):
 """
 
 # function to run a given algorithm
-def run(tour,algorithm,report):
+def run(tour, algorithm, report):
 
 	# set function to use
 	function = anneal if algorithm == 'sa' else mcmc
@@ -208,7 +208,7 @@ def run(tour,algorithm,report):
 	return results
 
 # function to solve tsp
-def solve(tour,sa,mcmc,report):
+def solve(tour, sa, mcmc, report):
 
 	results = {}
 	
