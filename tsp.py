@@ -4,8 +4,9 @@ tsp.py
 jack skrable
 """
 
-import random, sys, argparse, math, cProfile
+import random, sys, argparse, math, cProfile, copy
 from dataclasses import dataclass
+from timeit import default_timer as timer
 import matplotlib.pyplot as plt
 
 # init globals
@@ -68,9 +69,9 @@ class City:
 		cities.append(self)
 
 # add new city in random location
-def newCity(c):
+def newCity(c, n):
 	global cities
-	c = City(c,rand(100),rand(100))
+	c = City(c,rand(n*10),rand(n*10))
 	c.addToList()
 	# popDist()
 	return c
@@ -125,46 +126,38 @@ def acceptance(old, new, temp):
 def anneal(tour, temp):
 
 	# TODO play w this
-	alpha = 0.9
+	# number of temps to hit
+	alpha = 0.99
 	min_temp = 0.0001
+	best_tour = tour
 
-	if temp <= min_temp:
-		return tour
-	else:
-		i = 1
-		# simulations per temp
-		for i in range(100):
-			old_tour = tour
-			old_cost = cost(old_tour)
-			new_tour = neighbor(old_tour)
-			new_cost = cost(new_tour)
-
-			ap = acceptance(old_cost,new_cost,temp)
-
-			if ap > random.random():
-				tour = new_tour
-
-		temp = temp * alpha
-		anneal(tour,temp)
-
-	"""
 	while temp > min_temp:
 		i = 1
 		# TODO play w this
+		# size of simulation per temp
 		while i <= 100:
-			new_tour = neighbor(tour)
+			# copy tour and cost
+			old_tour = copy.copy(tour)
+			old_cost = cost(old_tour)
+			# get new tour and cost
+			new_tour = neighbor(old_tour)
 			new_cost = cost(new_tour)
+			# get acceptance probablity
 			ap = acceptance(old_cost,new_cost,temp)
+			# randomize acceptance
 			if ap > random.random():
+				# save new tour 
 				tour = new_tour
 				old_cost = new_cost
+			# if lower than best cost
 			if new_cost < cost(best_tour):
+				# save best tour
 				best_tour = new_tour
+			# next trial at current temp
 			i += 1
+		# decrease temp 
 		temp = temp * alpha
 	return best_tour
-	"""
-
 
 
 """
@@ -178,6 +171,20 @@ def mcmc(cities,iterations):
 	dist = cost(tour)
 	for i in range(iterations):
 """
+
+def solve(tour,type,report):
+
+	start = timer()
+	if type == 'anneal':
+			if report:
+				tour = cProfile.run('anneal(tour,1.0)')
+			else:
+				tour = anneal(tour,1.0)
+			end = timer()
+			duration = end - start
+			return tour, duration
+	elif type == 'mcmc':
+		return 0
 
 
 """
@@ -193,7 +200,7 @@ if __name__ == '__main__':
 
 	# add all cities
 	for i in range(size):
-		i = newCity(i)
+		i = newCity(i, size)
 
 	# create initial tour visiting each city in order of creation
 	tour = []
@@ -210,12 +217,10 @@ if __name__ == '__main__':
 	random.shuffle(tour)
 	print('initial cost of random tour is ' + str(cost(tour)))
 	# solve w/ annealing
-	if report:
-		tour = cProfile.run('anneal(tour,1.0)')
-	else:
-		tour = anneal(tour,1.0)
+	tour, duration = solve(tour,'anneal',report)
 
-	#print('cost of solved tour is ' + str(cost(tour)))
+	print('cost of solved tour is ' + str(cost(tour)))
+	print('time to solve was ' + str(duration) + ' seconds')
 
 	# show solved tour
 	plotTSP(tour,True)
