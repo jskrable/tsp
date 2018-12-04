@@ -8,15 +8,14 @@ import random, sys, argparse, math, cProfile, copy, matplotlib.pyplot as plt
 from dataclasses import dataclass
 from timeit import default_timer as timer 
 
-# init globals
+# init global
 CITIES = []
-dist_matrix = {}
-path = []
 
 # dataclass for cities
 @dataclass
 class City:
 
+	# attributes
 	name: str
 	x: int
 	y: int
@@ -28,12 +27,12 @@ class City:
 # function to parse arguments sent to CLI
 def arg_parser():
 	# setup argument parsing with description and -h method
-	parser = argparse.ArgumentParser(description='Solve the traveling salesman problem using Markov Chain Monte Carlo Method')
+	parser = argparse.ArgumentParser(description='Solve the traveling salesman problem using simulated annealing and Markov Chain Monte Carlo Method')
 	# add size int
 	parser.add_argument('-s','--size',default=20,type=int,nargs='?', 
 						help='the number of cities to travel')
 	# add iterations int
-	parser.add_argument('-i','--iterations',default=10000,type=int,nargs='?',
+	parser.add_argument('-i','--iterations',default=100,type=int,nargs='?',
 						help='the number of simulations to run')
 	# add annealing switch
 	parser.add_argument('-a','--sa',default=True,type=bool,nargs='?',
@@ -111,6 +110,25 @@ def plot_tsp(cities, complete):
 	# display	
 	plt.show()
 
+# function to calc alpha value to solve adequately
+def calc_alpha():
+	global CITIES
+	# init variables
+	sum_cost = 0
+	n = len(CITIES)
+
+	# loop through cities
+	for origin in CITIES:
+		for dest in CITIES:
+			# total the distances
+			sum_cost += dist(origin,dest)
+
+	# get average distance between two cities
+	mean = sum_cost / n
+
+	# return normalized alpha
+	return math.exp(-1/mean)
+
 # function to modify tour to a neighbor
 def neighbor(tour):
 	n = range(len(tour))
@@ -125,14 +143,22 @@ def acceptance(old, new, temp):
 		return 1.0
 	# otherwise base on difference
 	else:
-		return math.exp((old - new)/temp)
+		try:
+			return math.exp((new - old)/temp)
+		except OverflowError:
+			return float(-math.inf)
 
 # solve problem using simulated annealing
-def anneal(tour, temp):
+def anneal(tour, iterations):
+	"""
+	TODO use calculated alpha? 
+	should calculated alpha be a different function?
+	"""
 
-	# TODO play w this
-	# number of temps to hit
-	alpha = 0.99
+	# alpha = calc_alpha()
+	alpha = 0.999
+	print('calculated alpha is ' + str(alpha))
+	temp = 1.0
 	min_temp = 0.0001
 	best_tour = tour
 
@@ -140,7 +166,7 @@ def anneal(tour, temp):
 		i = 1
 		# TODO play w this
 		# size of simulation per temp
-		while i <= 100:
+		while i <= iterations:
 			# copy tour and cost
 			old_tour = copy.copy(tour)
 			old_cost = cost(old_tour)
@@ -179,7 +205,7 @@ def mcmc(cities,iterations):
 """
 
 # function to run a given algorithm
-def run(tour, algorithm, report):
+def run(tour, algorithm, report, iterations):
 
 	# set function to use
 	function = anneal if algorithm == 'sa' else mcmc
@@ -190,10 +216,10 @@ def run(tour, algorithm, report):
 
 	# check reporting switch
 	if report:
-		tour = cProfile.run("'"+function+"'(tour,1.0)'")
+		tour = cProfile.run("'"+function+"'(tour,'"+iterations+")")
 	else:
 		# TODO update variable to include MCMC
-		tour = function(tour,1.0)
+		tour = function(tour, iterations)
 	end = timer()
 	dur = end - start
 
@@ -208,22 +234,22 @@ def run(tour, algorithm, report):
 	return results
 
 # function to solve tsp
-def solve(tour, sa, mcmc, report):
+def solve(tour, sa, mcmc, report, iterations):
 
 	results = {}
 	
 	# use both and compare
 	if sa and mcmc:
-		results.update(run(tour,'sa',report))
-		results.update(run(tour,'mcmc',report))
+		results.update(run(tour,'sa',report,iterations))
+		results.update(run(tour,'mcmc',report,iterations))
 
 	# use simulated annealing
 	elif sa:
-		results.update(run(tour,'sa',report))
+		results.update(run(tour,'sa',report,iterations))
 
 	# use markov chain monte carlo
 	elif mcmc:
-		results.update(run(tour,'mcmc',report))
+		results.update(run(tour,'mcmc',report,iterations))
 
 	return results
 
@@ -234,7 +260,6 @@ main: create three cities and display their info
 if __name__ == '__main__':
 
 	args = arg_parser()
-	print(args)
 	# add all cities
 	for i in range(args.size):
 		i = new_city(i, args.size)
@@ -250,7 +275,7 @@ if __name__ == '__main__':
 	print('initial cost of random tour is ' + str(cost(tour)))
 
 	# solve
-	results = solve(tour,args.sa,args.mcmc,args.report)
+	results = solve(tour,args.sa,args.mcmc,args.report,args.iterations)
 	
 	print('cost of solved tour is ' + str(results['sa']['cost']))
 	print('time to solve was ' + str(results['sa']['duration']) + ' seconds')
