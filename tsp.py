@@ -22,8 +22,6 @@ CITIES = []
 OUTPUT = {}
 DT = datetime.now()
 
-# dataclass for cities
-
 
 @dataclass
 class City:
@@ -37,10 +35,9 @@ class City:
     def add_to_list(self):
         CITIES.append(self)
 
-# function to parse arguments sent to CLI
-
 
 def arg_parser():
+	# function to parse arguments sent to CLI
     # setup argument parsing with description and -h method
     parser = argparse.ArgumentParser(
         description='Solve the traveling salesman problem using simulated annealing and Markov Chain Monte Carlo Method')
@@ -66,26 +63,26 @@ def arg_parser():
     args = parser.parse_args()
     return args
 
-# function to get random coordinates
+
 
 
 def rand(size):
+    # function to get random coordinates
     return random.randint(0, size)
 
-# add new city in random location
-
-
 def new_city(c, n):
+    # add new city in random location
     global CITIES
     c = City(c, rand(n*10), rand(n*10))
     c.add_to_list()
     # popDist()
     return c
 
-# show list of cities
+
 
 
 def show_cities():
+    # show list of cities
     global CITIES
     print('Here is a list of the cities and their coordinates: ')
     for i, val in enumerate(CITIES):
@@ -95,7 +92,7 @@ def show_cities():
 
 
 def plot_tsp(cities, complete, save):
-	# plot map of cities
+    # plot map of cities
 
     # empty arrays for coords
     x = []
@@ -130,7 +127,7 @@ def plot_tsp(cities, complete, save):
 
 
 def write_results(filename):
-	# function to write results to output file
+    # function to write results to output file
 
     global OUTPUT
 
