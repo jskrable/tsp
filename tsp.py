@@ -33,10 +33,10 @@ def arg_parser():
 	parser = argparse.ArgumentParser(description='Solve the traveling salesman problem using simulated annealing and Markov Chain Monte Carlo Method')
 	# add size int
 	parser.add_argument('-s','--size',default=20,type=int,nargs='?', 
-						help='the number of cities to travel')
+						help='the number of cities to travel, default 20')
 	# add iterations int
 	parser.add_argument('-i','--iterations',default=100,type=int,nargs='?',
-						help='the number of simulations to run')
+						help='the number of simulations to run, default 100')
 	# add annealing switch
 	parser.add_argument('-a','--sa',default=True,type=bool,nargs='?',
 						help='use simulated annealing method')
@@ -46,6 +46,9 @@ def arg_parser():
 	# add reporting switch
 	parser.add_argument('-r','--report',default=False,type=bool,nargs='?',
 						help='turn on code performance reporting')
+	# add reporting switch
+	parser.add_argument('-o','--output',default=False,type=bool,nargs='?',
+						help='turn on result output, saving data and maps')
 	#parse args and return
 	args = parser.parse_args()
 	return args
