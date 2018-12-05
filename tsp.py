@@ -160,10 +160,14 @@ def run(tour, algorithm, report, iterations):
 
 	# check reporting switch
 	if report:
-		tour = cProfile.run("'"+function+"'(tour,'"+iterations+")")
+		run = cProfile.run("'"+function+"'(tour,'"+iterations,OUTPUT+")")
+		tour = run[0]
+		OUTPUT = run[1]
 	else:
 		# TODO update variable to include MCMC
-		tour = function(tour, iterations)
+		run = function(tour, iterations, OUTPUT)
+		tour = run[0]
+		OUTPUT = run[1]
 	end = timer()
 	dur = end - start
 
