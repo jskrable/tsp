@@ -6,10 +6,13 @@ jack skrable
 
 import random, sys, argparse, math, cProfile, copy, matplotlib.pyplot as plt
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from timeit import default_timer as timer 
 
 # init global
 CITIES = []
+OUTPUT = {}
+DT = datetime.now()
 
 # dataclass for cities
 @dataclass
@@ -88,27 +91,63 @@ def show_cities():
 		print(val.name, (val.x, val.y))
 
 # plot map of cities
-def plot_tsp(cities, complete):
+def plot_tsp(cities, complete, save):
 	# empty arrays for coords
 	x = []
 	y = []
+	path = 'results/'
+	ts = DT.strftime('%Y%m%d%H%M%S')
 	for city in cities:
 		# add each cities coords
 		x.append(city.x)
 		y.append(city.y)
 		# add city labels
-		#plt.annotate(xy = [city.x,city.y], s = ' ' + str(city.name))
+		plt.annotate(xy = [city.x,city.y], s = ' ' + str(city.name))
+		plt.axis('off')
 	if complete:
 		# add trip back to source
 		x.append(cities[0].x)
 		y.append(cities[0].y)	
 		# use dotted line connector
 		plt.plot(x,y,'bo:')
+		filename = path + 'solution_' + ts + '.png'
 	else:
 		# use points
 		plt.plot(x,y,'ro')
-	# display	
-	plt.show()
+		filename = path + 'problem_' + ts + '.png'
+	if save:
+		plt.savefig(filename)
+	else:
+		plt.show()
+
+# function to write results to output file
+def write_results(filename):
+	global OUTPUT
+
+	data = []
+	file = filename + '.txt'
+	# drop tour description
+	del OUTPUT['tour']
+
+	# arrange in csv
+	for key in OUTPUT:
+		data.append(str(OUTPUT[key]))
+
+	csv = ','.join(data)
+	csv += '\n'
+	# write results to file
+	with open(file,'a+') as f:		
+		print('writing output file...')
+		if f.tell() == 0:
+			head = []
+			for key in OUTPUT:
+				head.append(str(key))
+			headers = ','.join(head)
+			headers += '\n'
+			f.write(headers)
+		f.write(csv)
+		f.close()
+		print(file + ' written successfully.')
 
 # function to calc alpha value to solve adequately
 def calc_alpha():
@@ -126,7 +165,8 @@ def calc_alpha():
 	# get average distance between two cities
 	mean = sum_cost / n
 
-	# return normalized alpha
+	# return normalized (0-1.0) alpha
+	# TODO normalize between 0.8 and 0.99
 	return math.exp(-1/mean)
 
 # function to modify tour to a neighbor
@@ -143,9 +183,11 @@ def acceptance(old, new, temp):
 		return 1.0
 	# otherwise base on difference
 	else:
-		try:
+		try: 
+			# normalized difference over temp
 			return math.exp((new - old)/temp)
 		except OverflowError:
+			# catch overflow
 			return float(-math.inf)
 
 # solve problem using simulated annealing
@@ -154,10 +196,11 @@ def anneal(tour, iterations):
 	TODO use calculated alpha? 
 	should calculated alpha be a different function?
 	"""
-
-	# alpha = calc_alpha()
-	alpha = 0.999
+	global OUTPUT
+	alpha = calc_alpha()
+	#alpha = 0.99
 	print('calculated alpha is ' + str(alpha))
+	OUTPUT.update({'alpha': alpha})
 	temp = 1.0
 	min_temp = 0.0001
 	best_tour = tour
@@ -207,6 +250,8 @@ def mcmc(cities,iterations):
 # function to run a given algorithm
 def run(tour, algorithm, report, iterations):
 
+	global OUTPUT
+
 	# set function to use
 	function = anneal if algorithm == 'sa' else mcmc
 
@@ -230,6 +275,8 @@ def run(tour, algorithm, report, iterations):
 							'cost': cost(tour)
 							}
 						})
+
+	OUTPUT.update(results[algorithm])
 
 	return results
 
@@ -260,6 +307,9 @@ main: create three cities and display their info
 if __name__ == '__main__':
 
 	args = arg_parser()
+	OUTPUT.update({'size': args.size,
+					'iterations': args.iterations
+					})
 	# add all cities
 	for i in range(args.size):
 		i = new_city(i, args.size)
@@ -268,7 +318,7 @@ if __name__ == '__main__':
 	tour = []
 	for city in CITIES:
 		tour.append(city)
-	plot_tsp(CITIES,False)
+	plot_tsp(CITIES,False,True)
 
 	# randomize tour
 	random.shuffle(tour)
@@ -280,6 +330,14 @@ if __name__ == '__main__':
 	print('cost of solved tour is ' + str(results['sa']['cost']))
 	print('time to solve was ' + str(results['sa']['duration']) + ' seconds')
 
-	# show solved tour
-	plot_tsp(results['sa']['tour'],True)
+	# show/save solved tour
+	plot_tsp(results['sa']['tour'],True,True)
+	
+	# get timestamp for output file
+	ts = DT.strftime('%Y-%m-%d %H:%M:%S')
+	OUTPUT.update({'timestamp': ts})
+
+	# write results file
+	write_results('output')
+
 	
