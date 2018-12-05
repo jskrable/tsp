@@ -76,7 +76,7 @@ def acceptance(old, new, temp):
 # solve problem using simulated annealing
 
 
-def anneal(tour, iterations, output):
+def anneal(tour, iterations):
     """
     TODO use calculated alpha? 
     should calculated alpha be a different function?
@@ -85,7 +85,6 @@ def anneal(tour, iterations, output):
     alpha = calc_alpha(tour)
     #alpha = 0.99
     print('calculated alpha is ' + str(alpha))
-    output.update({'alpha': alpha})
     temp = 1.0
     min_temp = 0.0001
     best_tour = tour
@@ -116,4 +115,4 @@ def anneal(tour, iterations, output):
             i += 1
         # decrease temp
         temp = temp * alpha
-    return best_tour
+    return best_tour, alpha
