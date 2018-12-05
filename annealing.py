@@ -2,18 +2,16 @@ import math
 import copy
 import random
 
-# function to calculate euclidian distance
-
 
 def dist(a, b):
+    # function to calculate euclidian distance
     x = abs(a.x-b.x)
     y = abs(a.y-b.y)
     return int((x**2 + y**2)**0.5)
 
-# function to calc total tour dist
-
 
 def cost(tour):
+    # function to calc total tour dist
     # init total distance
     d = 0
     # append distance between each stop on tour
@@ -27,13 +25,11 @@ def cost(tour):
 
     return d
 
-# function to calc alpha value to solve adequately
-
 
 def calc_alpha(tour):
-    # init variables
+    # function to calculate alpha based on average distance between cities
+
     sum_cost = 0
-    n = len(tour)
 
     # loop through cities
     for origin in tour:
@@ -42,7 +38,7 @@ def calc_alpha(tour):
             sum_cost += dist(origin, dest)
 
     # get average distance between two cities
-    mean = sum_cost / n
+    mean = sum_cost / len(tour)
 
     # return normalized (0-1.0) alpha
     # TODO normalize between 0.8 and 0.99
@@ -52,16 +48,16 @@ def calc_alpha(tour):
 
 
 def neighbor(tour):
+    # function to swap order of tour by 1
     n = range(len(tour))
     a, b = random.sample(n, 2)
     tour[a], tour[b] = tour[b], tour[a]
     return tour
 
-# function to get acceptance prob
-
 
 def acceptance(old, new, temp):
-    # perfect prob if new is better
+    # function to get acceptance probability
+    # perfect prob if new tour is better
     if new < old:
         return 1.0
     # otherwise base on difference
@@ -73,16 +69,16 @@ def acceptance(old, new, temp):
             # catch overflow
             return float(-math.inf)
 
-# solve problem using simulated annealing
-
 
 def anneal(tour, iterations):
+    # solve problem using simulated annealing
     """
     TODO use calculated alpha? 
     should calculated alpha be a different function?
     """
-
+    efforts = []
     alpha = calc_alpha(tour)
+    # can hardcode alpha here
     #alpha = 0.99
     print('calculated alpha is ' + str(alpha))
     temp = 1.0
@@ -113,6 +109,8 @@ def anneal(tour, iterations):
                 best_tour = new_tour
             # next trial at current temp
             i += 1
+            if i == iterations:
+                efforts.append(best_tour)
         # decrease temp
         temp = temp * alpha
-    return best_tour, alpha
+    return best_tour, alpha, efforts
