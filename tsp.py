@@ -142,11 +142,11 @@ def run(tour, algorithm, report, iterations):
 
     # Plot significant partial efforts
     for i in range(len(efforts)):
-        plotname = PATH + 'temp_' + str("%03d"%i)
+        plotname = PATH + 'partial_' + str("%03d"%i)
         partial = State(efforts[i]['tour'],
                         efforts[i]['temp'],
-                        0.5,
                         an.cost(efforts[i]['tour']),
+                        0.5,
                         True,
                         plotname)
         out.plot_tsp(partial)

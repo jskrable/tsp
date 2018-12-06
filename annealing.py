@@ -41,13 +41,11 @@ def calc_alpha(tour):
 
     # get average distance between two cities
     mean = sum_cost/n
-    mean /= 100
+    mean /= 25
     # return normalized (0-1.0) alpha
     # TODO normalize between 0.8 and 0.99
     # TRY MEAN??? NOT WORKING 
     return math.exp(-1/mean)
-
-# function to modify tour to a neighbor
 
 
 def neighbor(tour):

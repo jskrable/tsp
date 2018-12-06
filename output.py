@@ -11,6 +11,10 @@ def plot_tsp(state):
     x = []
     y = []
 
+    # Legend
+    txt = 'temp = ' + str(state.temp) + ' cost = ' + str(state.cost)
+    plt.text(0,0,txt)
+
     for city in state.tour:
         # add each cities coords
         x.append(city.x)
@@ -33,12 +37,12 @@ def plot_tsp(state):
         else:
             # use dotted line
             plt.plot(x, y, 'bo:')
-            filename = state.path + '_partial.png'
+            filename = state.path + '.png'
             
     else:
         # use points
         plt.plot(x, y, 'ro')
-        filename = state.path + 'problem.png'
+        filename = state.path + 'initial.png'
 
     if state.save:
         # save result figures
