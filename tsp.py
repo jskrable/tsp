@@ -7,11 +7,8 @@ jack skrable
 import annealing as an
 import output as out
 import random
-import sys
 import argparse
-import math
 import cProfile
-import copy
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from timeit import default_timer as timer
@@ -131,12 +128,10 @@ def run(tour, algorithm, report, iterations):
     OUTPUT.update({'alpha': run[1]})
     efforts = run[2]
 
+    # Plot signifiacnt partial efforts
     for i in range(len(efforts)):
         plotname = PATH + 'temp_' + str(i)
-        #print(efforts[i]['tour'])
-        #out.plot_tsp(efforts[i]['tour'],0.5,True,plotname)
-
-    
+        out.plot_tsp(efforts[i]['tour'],0.5,True,plotname)
 
     # Update results
     results.update({algorithm: {
@@ -190,7 +185,7 @@ if __name__ == '__main__':
         tour.append(city)
 
     # Display or save initial problem
-    out.plot_tsp(CITIES, False, True, PATH)
+    out.plot_tsp(CITIES, 0, True, PATH)
 
     # Randomize tour
     # TODO Add a heuristic here???
@@ -206,7 +201,7 @@ if __name__ == '__main__':
     print('time to solve was ' + str(results['sa']['duration']) + ' seconds')
 
     # Display or save solved tour
-    out.plot_tsp(results['sa']['tour'], True, True, PATH)
+    out.plot_tsp(results['sa']['tour'], 1, True, PATH)
 
     # Get timestamp for output file
     ts = DT.strftime('%Y-%m-%d %H:%M:%S')

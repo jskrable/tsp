@@ -40,8 +40,8 @@ def calc_alpha(tour):
             
 
     # get average distance between two cities
-    mean = (sum_cost / n) / 100
-
+    mean = sum_cost/n
+    mean /= 100
     # return normalized (0-1.0) alpha
     # TODO normalize between 0.8 and 0.99
     # TRY MEAN??? NOT WORKING 
@@ -109,12 +109,11 @@ def anneal(tour, iterations):
             # if lower than best cost
             if new_cost < cost(best_tour):
                 # save best tour
-                best_tour = copy.copy(new_tour)
-            # next trial at current temp
-            i += 1
-            if i == iterations:
+                best_tour = new_tour
                 efforts.append({'temp': temp,
                                 'tour': best_tour})
+            # next trial at current temp
+            i += 1
         # decrease temp
         temp = temp * alpha
     return best_tour, alpha, efforts

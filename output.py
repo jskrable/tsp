@@ -26,24 +26,19 @@ def plot_tsp(cities, complete, save, path):
         x.append(cities[0].x)
         y.append(cities[0].y)
         if complete == 1:
-            # use dotted line connector
-            plt.plot(x, y, 'go:')
-            filename = path + 'solution_.png'
+            # use full line
+            plt.plot(x, y, 'go-')
+            filename = path + 'solution.png'
         else:
-            # use dotted line connector
+            # use dotted line
             plt.plot(x, y, 'bo:')
             filename = path + '_partial.png'
-    elif complete == 0:
+            
+    else:
         # use points
         plt.plot(x, y, 'ro')
-        filename = path + 'problem_.png'
-    else:
-        # TODO add saves at each temp
-        # add trip back to source
-        x.append(cities[0].x)
-        y.append(cities[0].y)
-        # use dotted line connector
-        plt.plot(x, y, 'bo:')
+        filename = path + 'problem.png'
+
     if save:
         # save result figures
         try:
@@ -53,6 +48,8 @@ def plot_tsp(cities, complete, save, path):
             plt.savefig(filename)
     else:
         plt.show()
+
+    plt.clf()
 
 
 def write_results(filename, output):
