@@ -22,19 +22,19 @@ DT = datetime.now()
 ts = DT.strftime('%Y%m%d%H%M%S')
 PATH = 'results/' + ts + '/'
 
-# TODO add dataclass for State
 
 @dataclass
 class City:
 
-    # attributes
+    # Attributes
     name: str
     x: int
     y: int
 
-    # add to global list
+    # Add to global list
     def add_to_list(self):
         CITIES.append(self)
+
 
 @dataclass
 class State:
@@ -48,12 +48,11 @@ class State:
     path: str
 
 
-
 def arg_parser():
         # function to parse arguments sent to CLI
     # setup argument parsing with description and -h method
     parser = argparse.ArgumentParser(
-        description='Solve the traveling salesman problem using simulated annealing')
+        description='Solve traveling salesman problem using simulated annealing')
     # add size int
     parser.add_argument('-s', '--size', default=20, type=int, nargs='?',
                         help='the number of cities to travel, default 20')
@@ -103,13 +102,13 @@ def show_cities():
 TODO WRITE THIS DAMN THING
 # solve problem using mcmc
 def mcmc(cities,iterations):
-	# get initial tour in order of city name
-	tour = []
-	for city in cities:
-		tour.append(city)
-	# get initial tour distance
-	dist = cost(tour)
-	for i in range(iterations):
+    # get initial tour in order of city name
+    tour = []
+    for city in cities:
+        tour.append(city)
+    # get initial tour distance
+    dist = cost(tour)
+    for i in range(iterations):
 """
 
 
@@ -131,10 +130,10 @@ def run(tour, algorithm, report, iterations):
 
     else:
         run = function(tour, iterations)
-    
+
     # Close timer and get duration
     end = timer()
-    dur = end - start    
+    dur = end - start
 
     # Split return tuple
     tour = run[0]
@@ -144,17 +143,12 @@ def run(tour, algorithm, report, iterations):
     # Plot significant partial efforts
     for i in range(len(efforts)):
         plotname = PATH + 'temp_' + str(i)
-        partial = State(efforts[i]['tour'], 
+        partial = State(efforts[i]['tour'],
                         efforts[i]['temp'],
                         0.5,
                         an.cost(efforts[i]['tour']),
                         True,
                         plotname)
-        state = {'tour': efforts[i]['tour'],
-                 'temp': efforts[i]['temp'],
-                 'complete': 0.5,
-                 'save': True,
-                 'path': plotname}
         out.plot_tsp(partial)
 
     # Update results
@@ -209,12 +203,12 @@ if __name__ == '__main__':
         tour.append(city)
 
     # Display or save initial problem
-    problem = State(CITIES, 1.0, an.cost(tour), 0, True, PATH)
-    # state = {'tour': CITIES,
-    #          'temp': 1.0,
-    #          'complete': 0,
-    #          'save': True,
-    #          'path': PATH}
+    problem = State(CITIES,
+                    1.0,
+                    an.cost(tour),
+                    0,
+                    True,
+                    PATH)
     out.plot_tsp(problem)
 
     # Randomize tour
@@ -231,12 +225,12 @@ if __name__ == '__main__':
     print('time to solve was ' + str(results['sa']['duration']) + ' seconds')
 
     # Display or save solved tour
-    state = {'tour': results['sa']['tour'],
-             'temp': 0,
-             'complete': 1,
-             'save': True,
-             'path': PATH}
-    solution = State(results['sa']['tour'], 0, results['sa']['cost'], 1, True, PATH)
+    solution = State(results['sa']['tour'],
+                     0,
+                     results['sa']['cost'],
+                     1,
+                     True,
+                     PATH)
     out.plot_tsp(solution)
 
     # Get timestamp for output file
