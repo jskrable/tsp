@@ -15,13 +15,17 @@ def cost(tour):
     # init total distance
     d = 0
     # append distance between each stop on tour
-    for i in range(len(tour)-1):
-        a = tour[i]
-        b = tour[i+1]
-        d += dist(a, b)
+    for pos, city in enumerate(tour):
+        a = city
+        try:
+            b = tour[pos+1]
+            d += dist(a, b)
+        except IndexError:
+            d += dist(a, tour[0])
+            break
 
     # include cost to return to start
-    d += dist(tour[0], tour[-1])
+    
 
     return d
 

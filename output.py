@@ -14,7 +14,8 @@ def plot_tsp(state):
 
     # Legend
     txt = 'temp = ' + str(round(state.temp, 6)) + ' cost = ' + str(state.cost)
-    plt.text(0, 0, txt)
+    # Add text to figure, not plot
+    plt.gcf().text(0.02, 0.02, txt)
 
     for city in state.tour:
         # add each cities coords
@@ -48,10 +49,12 @@ def plot_tsp(state):
     if state.save:
         # save result figures
         try:
-            plt.savefig(filename)
+            # DPI = dots per inch
+            plt.savefig(filename, format='png', dpi=300)
         except FileNotFoundError:
+            # Create path if non-existent
             os.makedirs(state.path)
-            plt.savefig(filename)
+            plt.savefig(filename, format='png', dpi=300)
     else:
         plt.show()
     # clear plot for next call
@@ -74,9 +77,8 @@ def write_results(filename, output):
     csv += '\n'
     # Write results to file
     with open(file, 'a+') as f:
-        print('writing output file...')
-        # Check for empty file
         if f.tell() == 0:
+            # Write headers if file empty
             head = []
             for key in output:
                 head.append(str(key))
@@ -85,7 +87,6 @@ def write_results(filename, output):
             f.write(headers)
         f.write(csv)
         f.close()
-        print(file + ' written successfully.')
 
 
 def animate(path):
@@ -93,11 +94,11 @@ def animate(path):
 
     image_dir = os.fsencode(path)
     files = os.listdir(image_dir)
-    
+
     # Get list of filenames including path
     fnames = [path+os.fsdecode(f) for f in files if f.endswith(b'.png')]
     fnames.sort()
-    
+
     # Read images
     images = [im.imread(f) for f in fnames]
 

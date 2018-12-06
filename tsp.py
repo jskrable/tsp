@@ -76,15 +76,10 @@ def arg_parser():
     return args
 
 
-def rand(size):
-    # function to get random coordinates
-    return random.randint(0, size)
-
-
 def new_city(c, n):
     # add new city in random location
     global CITIES
-    c = City(c, rand(n**2), rand(n**2))
+    c = City(c, random.randint(0,n**2), random.randint(0,n**2))
     c.add_to_list()
     # popDist()
     return c
@@ -117,19 +112,18 @@ def run(tour, algorithm, report, iterations):
 
     global OUTPUT
 
-    function = an.anneal if algorithm == 'sa' else mcmc
+    alg = an.anneal if algorithm == 'sa' else mcmc
 
     # Init results
     results = {}
     start = timer()
 
-    # TODO add handling for efforts graphs here
     # Check reporting switch
     if report:
-        run = cProfile.run("'"+function+"'(tour,'"+iterations+")")
+        run = cProfile.run("'"+alg+"(tour,iterations)'")
 
     else:
-        run = function(tour, iterations)
+        run = alg(tour, iterations)
 
     # Close timer and get duration
     end = timer()
@@ -205,7 +199,7 @@ if __name__ == '__main__':
     # Display or save initial problem
     problem = State(CITIES,
                     1.0,
-                    an.cost(tour),
+                    0,
                     0,
                     True,
                     PATH)
@@ -236,6 +230,8 @@ if __name__ == '__main__':
     # Get timestamp for output file
     ts = DT.strftime('%Y-%m-%d %H:%M:%S')
     OUTPUT.update({'timestamp': ts})
-
+    
+    print('writing results...')
     out.write_results('run_stats', OUTPUT)
     out.animate(PATH)
+    print('complete')
