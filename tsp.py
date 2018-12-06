@@ -6,10 +6,9 @@ jack skrable
 
 import annealing as an
 import output as out
+import setup
 import random
-import argparse
 import cProfile
-from dataclasses import dataclass
 from datetime import datetime, timezone
 from timeit import default_timer as timer
 
@@ -21,77 +20,6 @@ DT = datetime.now()
 # Get path for output results
 ts = DT.strftime('%Y%m%d%H%M%S')
 PATH = 'results/' + ts + '/'
-
-
-@dataclass
-class City:
-
-    # Attributes
-    name: str
-    x: int
-    y: int
-
-    # Add to global list
-    def add_to_list(self):
-        CITIES.append(self)
-
-
-@dataclass
-class State:
-
-    # Attributes
-    tour: list
-    temp: float
-    cost: float
-    complete: float
-    save: bool
-    path: str
-
-
-def arg_parser():
-        # function to parse arguments sent to CLI
-    # setup argument parsing with description and -h method
-    parser = argparse.ArgumentParser(
-        description='Solve traveling salesman problem using simulated annealing')
-    # add size int
-    parser.add_argument('-s', '--size', default=20, type=int, nargs='?',
-                        help='the number of cities to travel, default 20')
-    # add iterations int
-    parser.add_argument('-i', '--iterations', default=100, type=int, nargs='?',
-                        help='the number of simulations to run, default 100')
-    # add annealing switch
-    parser.add_argument('-a', '--sa', default=True, type=bool, nargs='?',
-                        help='use simulated annealing method')
-    # add mcmc switch
-    parser.add_argument('-m', '--mcmc', default=False, type=bool, nargs='?',
-                        help='use markov chain monte carlo method')
-    # add reporting switch
-    parser.add_argument('-r', '--report', default=False, type=bool, nargs='?',
-                        help='turn on code performance reporting')
-    # add reporting switch
-    parser.add_argument('-o', '--output', default=False, type=bool, nargs='?',
-                        help='turn on result output, saving data and maps')
-    # parse args and return
-    args = parser.parse_args()
-    return args
-
-
-def new_city(c, n):
-    # add new city in random location
-    global CITIES
-    c = City(c, random.randint(0,n**2), random.randint(0,n**2))
-    c.add_to_list()
-    # popDist()
-    return c
-
-
-def show_cities():
-    # show list of cities
-    global CITIES
-    print('Here is a list of the cities and their coordinates: ')
-    for i, val in enumerate(CITIES):
-        print(val.name, (val.x, val.y))
-
 
 """
 TODO WRITE THIS DAMN THING
@@ -136,13 +64,13 @@ def run(tour, algorithm, report, iterations):
 
     # Plot significant partial efforts
     for i in range(len(efforts)):
-        plotname = PATH + 'partial_' + str("%03d"%i)
-        partial = State(efforts[i]['tour'],
-                        efforts[i]['temp'],
-                        an.cost(efforts[i]['tour']),
-                        0.5,
-                        True,
-                        plotname)
+        plotname = PATH + 'partial_' + str("%03d" % i)
+        partial = setup.State(efforts[i]['tour'],
+                              efforts[i]['temp'],
+                              an.cost(efforts[i]['tour']),
+                              0.5,
+                              True,
+                              plotname)
         out.plot_tsp(partial)
 
     # Update results
@@ -183,26 +111,24 @@ def solve(tour, sa, mcmc, report, iterations):
 Main function. Parses arguments, initializes random problem, solves problem.
 """
 if __name__ == '__main__':
-    args = arg_parser()
+    args = setup.arg_parser()
     OUTPUT.update({'size': args.size,
                    'iterations': args.iterations
                    })
-    # Add all cities
-    for i in range(args.size):
-        i = new_city(i, args.size)
-
     # Create initial tour visiting each city in order of creation
     tour = []
-    for city in CITIES:
-        tour.append(city)
+    n = args.size
+    for i in range(n):
+        i = setup.City(i, random.randint(0, n**2), random.randint(0, n**2))
+        tour.append(i)
 
     # Display or save initial problem
-    problem = State(CITIES,
-                    1.0,
-                    0,
-                    0,
-                    True,
-                    PATH)
+    problem = setup.State(tour,
+                          1.0,
+                          0,
+                          0,
+                          True,
+                          PATH)
     out.plot_tsp(problem)
 
     # Randomize tour
@@ -219,18 +145,18 @@ if __name__ == '__main__':
     print('time to solve was ' + str(results['sa']['duration']) + ' seconds')
 
     # Display or save solved tour
-    solution = State(results['sa']['tour'],
-                     0,
-                     results['sa']['cost'],
-                     1,
-                     True,
-                     PATH)
+    solution = setup.State(results['sa']['tour'],
+                           0,
+                           results['sa']['cost'],
+                           1,
+                           True,
+                           PATH)
     out.plot_tsp(solution)
 
     # Get timestamp for output file
     ts = DT.strftime('%Y-%m-%d %H:%M:%S')
     OUTPUT.update({'timestamp': ts})
-    
+
     print('writing results...')
     out.write_results('run_stats', OUTPUT)
     out.animate(PATH)
