@@ -110,6 +110,7 @@ def anneal(tour, iterations):
             if new_cost < cost(best_tour):
                 # save best tour
                 best_tour = new_tour
+                # TODO find less frequent place to do this
                 efforts.append({'temp': temp,
                                 'tour': best_tour})
             # next trial at current temp
