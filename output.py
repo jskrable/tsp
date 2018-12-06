@@ -21,20 +21,29 @@ def plot_tsp(cities, complete, save, path):
         except TypeError:
             log.info('Cannot label plot.')
         plt.axis('off')
-    if complete == 1:
+    if complete > 0:
         # add trip back to source
         x.append(cities[0].x)
         y.append(cities[0].y)
-        # use dotted line connector
-        plt.plot(x, y, 'bo:')
-        filename = path + 'solution_.png'
+        if complete == 1:
+            # use dotted line connector
+            plt.plot(x, y, 'go:')
+            filename = path + 'solution_.png'
+        else:
+            # use dotted line connector
+            plt.plot(x, y, 'bo:')
+            filename = path + '_partial.png'
     elif complete == 0:
         # use points
         plt.plot(x, y, 'ro')
         filename = path + 'problem_.png'
     else:
         # TODO add saves at each temp
-        None
+        # add trip back to source
+        x.append(cities[0].x)
+        y.append(cities[0].y)
+        # use dotted line connector
+        plt.plot(x, y, 'bo:')
     if save:
         # save result figures
         try:

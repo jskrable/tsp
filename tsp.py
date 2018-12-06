@@ -21,6 +21,10 @@ CITIES = []
 OUTPUT = {}
 DT = datetime.now()
 
+# Get path for output results
+ts = DT.strftime('%Y%m%d%H%M%S')
+PATH = 'results/' + ts + '/'
+
 
 @dataclass
 class City:
@@ -71,7 +75,7 @@ def rand(size):
 def new_city(c, n):
     # add new city in random location
     global CITIES
-    c = City(c, rand(n*10), rand(n*10))
+    c = City(c, rand(n**2), rand(n**2))
     c.add_to_list()
     # popDist()
     return c
@@ -114,16 +118,25 @@ def run(tour, algorithm, report, iterations):
     # Check reporting switch
     if report:
         run = cProfile.run("'"+function+"'(tour,'"+iterations+")")
-        # Split return tuple
-        tour = run[0]
-        OUTPUT.update({'alpha': run[1]})
+
     else:
         run = function(tour, iterations)
-        # Split return tuple
-        tour = run[0]
-        OUTPUT.update({'alpha': run[1]})
+    
+    # Close timer and get duration
     end = timer()
-    dur = end - start
+    dur = end - start    
+
+    # Split return tuple
+    tour = run[0]
+    OUTPUT.update({'alpha': run[1]})
+    efforts = run[2]
+
+    for i in range(len(efforts)):
+        plotname = PATH + 'temp_' + str(i)
+        #print(efforts[i]['tour'])
+        #out.plot_tsp(efforts[i]['tour'],0.5,True,plotname)
+
+    
 
     # Update results
     results.update({algorithm: {
@@ -176,12 +189,8 @@ if __name__ == '__main__':
     for city in CITIES:
         tour.append(city)
 
-    # Get path for output results
-    ts = DT.strftime('%Y%m%d%H%M%S')
-    path = 'results/' + ts + '/'
-
     # Display or save initial problem
-    out.plot_tsp(CITIES, False, True, path)
+    out.plot_tsp(CITIES, False, True, PATH)
 
     # Randomize tour
     # TODO Add a heuristic here???
@@ -197,7 +206,7 @@ if __name__ == '__main__':
     print('time to solve was ' + str(results['sa']['duration']) + ' seconds')
 
     # Display or save solved tour
-    out.plot_tsp(results['sa']['tour'], True, True, path)
+    out.plot_tsp(results['sa']['tour'], True, True, PATH)
 
     # Get timestamp for output file
     ts = DT.strftime('%Y-%m-%d %H:%M:%S')

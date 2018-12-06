@@ -30,18 +30,21 @@ def calc_alpha(tour):
     # function to calculate alpha based on average distance between cities
 
     sum_cost = 0
+    n = len(tour)
 
     # loop through cities
     for origin in tour:
         for dest in tour:
             # total the distances
             sum_cost += dist(origin, dest)
+            
 
     # get average distance between two cities
-    mean = sum_cost / len(tour)
+    mean = (sum_cost / n) / 100
 
     # return normalized (0-1.0) alpha
     # TODO normalize between 0.8 and 0.99
+    # TRY MEAN??? NOT WORKING 
     return math.exp(-1/mean)
 
 # function to modify tour to a neighbor
@@ -82,7 +85,7 @@ def anneal(tour, iterations):
     #alpha = 0.99
     print('calculated alpha is ' + str(alpha))
     temp = 1.0
-    min_temp = 0.0001
+    min_temp = 0.00001
     best_tour = tour
 
     while temp > min_temp:
@@ -106,11 +109,12 @@ def anneal(tour, iterations):
             # if lower than best cost
             if new_cost < cost(best_tour):
                 # save best tour
-                best_tour = new_tour
+                best_tour = copy.copy(new_tour)
             # next trial at current temp
             i += 1
             if i == iterations:
-                efforts.append(best_tour)
+                efforts.append({'temp': temp,
+                                'tour': best_tour})
         # decrease temp
         temp = temp * alpha
     return best_tour, alpha, efforts
