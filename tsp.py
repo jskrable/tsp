@@ -22,6 +22,7 @@ DT = datetime.now()
 ts = DT.strftime('%Y%m%d%H%M%S')
 PATH = 'results/' + ts + '/'
 
+# TODO add dataclass for State
 
 @dataclass
 class City:
@@ -34,6 +35,18 @@ class City:
     # add to global list
     def add_to_list(self):
         CITIES.append(self)
+
+@dataclass
+class State:
+
+    # Attributes
+    tour: list
+    temp: float
+    cost: float
+    complete: float
+    save: bool
+    path: str
+
 
 
 def arg_parser():
@@ -131,12 +144,18 @@ def run(tour, algorithm, report, iterations):
     # Plot significant partial efforts
     for i in range(len(efforts)):
         plotname = PATH + 'temp_' + str(i)
+        partial = State(efforts[i]['tour'], 
+                        efforts[i]['temp'],
+                        0.5,
+                        an.cost(efforts[i]['tour']),
+                        True,
+                        plotname)
         state = {'tour': efforts[i]['tour'],
                  'temp': efforts[i]['temp'],
                  'complete': 0.5,
                  'save': True,
                  'path': plotname}
-        out.plot_tsp(state)
+        out.plot_tsp(partial)
 
     # Update results
     results.update({algorithm: {
@@ -190,12 +209,13 @@ if __name__ == '__main__':
         tour.append(city)
 
     # Display or save initial problem
-    state = {'tour': CITIES,
-             'temp': 1.0,
-             'complete': 0,
-             'save': True,
-             'path': PATH}
-    out.plot_tsp(state)
+    problem = State(CITIES, 1.0, an.cost(tour), 0, True, PATH)
+    # state = {'tour': CITIES,
+    #          'temp': 1.0,
+    #          'complete': 0,
+    #          'save': True,
+    #          'path': PATH}
+    out.plot_tsp(problem)
 
     # Randomize tour
     # TODO Add a heuristic here???
@@ -216,7 +236,8 @@ if __name__ == '__main__':
              'complete': 1,
              'save': True,
              'path': PATH}
-    out.plot_tsp(state)
+    solution = State(results['sa']['tour'], 0, results['sa']['cost'], 1, True, PATH)
+    out.plot_tsp(solution)
 
     # Get timestamp for output file
     ts = DT.strftime('%Y-%m-%d %H:%M:%S')
