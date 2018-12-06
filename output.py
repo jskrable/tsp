@@ -12,7 +12,7 @@ def plot_tsp(state):
     y = []
 
     # Legend
-    txt = 'temp = ' + str(state.temp) + ' cost = ' + str(state.cost)
+    txt = 'temp = ' + str(round(state.temp,6)) + ' cost = ' + str(state.cost)
     plt.text(0,0,txt)
 
     for city in state.tour:
