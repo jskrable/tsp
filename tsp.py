@@ -128,10 +128,15 @@ def run(tour, algorithm, report, iterations):
     OUTPUT.update({'alpha': run[1]})
     efforts = run[2]
 
-    # Plot signifiacnt partial efforts
+    # Plot significant partial efforts
     for i in range(len(efforts)):
         plotname = PATH + 'temp_' + str(i)
-        out.plot_tsp(efforts[i]['tour'],0.5,True,plotname)
+        state = {'tour': efforts[i]['tour'],
+                 'temp': efforts[i]['temp'],
+                 'complete': 0.5,
+                 'save': True,
+                 'path': plotname}
+        out.plot_tsp(state)
 
     # Update results
     results.update({algorithm: {
@@ -185,7 +190,12 @@ if __name__ == '__main__':
         tour.append(city)
 
     # Display or save initial problem
-    out.plot_tsp(CITIES, 0, True, PATH)
+    state = {'tour': CITIES,
+             'temp': 1.0,
+             'complete': 0,
+             'save': True,
+             'path': PATH}
+    out.plot_tsp(state)
 
     # Randomize tour
     # TODO Add a heuristic here???
@@ -201,7 +211,12 @@ if __name__ == '__main__':
     print('time to solve was ' + str(results['sa']['duration']) + ' seconds')
 
     # Display or save solved tour
-    out.plot_tsp(results['sa']['tour'], 1, True, PATH)
+    state = {'tour': results['sa']['tour'],
+             'temp': 0,
+             'complete': 1,
+             'save': True,
+             'path': PATH}
+    out.plot_tsp(state)
 
     # Get timestamp for output file
     ts = DT.strftime('%Y-%m-%d %H:%M:%S')
