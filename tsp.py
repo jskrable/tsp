@@ -21,19 +21,6 @@ DT = datetime.now()
 ts = DT.strftime('%Y%m%d%H%M%S')
 PATH = 'results/' + ts + '/'
 
-"""
-TODO WRITE THIS DAMN THING
-# solve problem using mcmc
-def mcmc(cities,iterations):
-    # get initial tour in order of city name
-    tour = []
-    for city in cities:
-        tour.append(city)
-    # get initial tour distance
-    dist = cost(tour)
-    for i in range(iterations):
-"""
-
 
 def run(tour, algorithm, report, iterations):
     # Function to run a given algorithm
