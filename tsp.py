@@ -238,3 +238,4 @@ if __name__ == '__main__':
     OUTPUT.update({'timestamp': ts})
 
     out.write_results('run_stats', OUTPUT)
+    out.animate(PATH)
