@@ -105,3 +105,7 @@ def animate(path):
     # Write GIF
     # Duration per frame
     im.mimsave(os.path.join(path+'animate.gif'), images, duration=0.33)
+
+    # Delete partial PNGs
+    files = [path+os.fsdecode(f) for f in files]
+    deleted = [os.remove(f) for f in files if 'partial' in f] 

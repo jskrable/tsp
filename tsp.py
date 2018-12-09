@@ -74,7 +74,7 @@ def run(tour, algorithm, report, iterations):
 
 
 def solve(tour, sa, mcmc, report, iterations):
-        # Function to solve problem
+    # Function to solve problem
 
     results = {}
 
@@ -94,10 +94,9 @@ def solve(tour, sa, mcmc, report, iterations):
     return results
 
 
-"""
-Main function. Parses arguments, initializes random problem, solves problem.
-"""
-if __name__ == '__main__':
+def main():
+    # Main function. Parses arguments, initializes random problem, solves problem.
+    
     args = setup.arg_parser()
     OUTPUT.update({'size': args.size,
                    'iterations': args.iterations
@@ -148,3 +147,7 @@ if __name__ == '__main__':
     out.write_results('run_stats', OUTPUT)
     out.animate(PATH)
     print('complete')
+
+
+if __name__ == '__main__':
+    main()

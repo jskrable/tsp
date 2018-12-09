@@ -87,7 +87,7 @@ def anneal(tour, iterations):
     #alpha = 0.99
     print('calculated alpha is ' + str(alpha))
     temp = 1.0
-    min_temp = 0.00001
+    min_temp = 0.001
     best_tour = tour
 
     while temp > min_temp:
