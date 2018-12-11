@@ -1,6 +1,5 @@
 import sys
 import os
-import pandas as pd
 import logging as log
 import imageio as im
 import matplotlib.pyplot as plt
@@ -61,17 +60,6 @@ def plot_tsp(state):
     # clear plot for next call
     plt.clf()
 
-
-def plot_stats(data_file, output):
-    # Function to plot statistics 
-
-    x = []
-    y = []
-
-    datafile = pd.read_csv('run_stats.txt',sep=',')
-
-    plt.plot(x, y, 'ro')
-    plt.show()
 
 def write_results(filename, output):
     # function to write results to output file
