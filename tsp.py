@@ -6,7 +6,7 @@ jack skrable
 
 import annealing as an
 import output as out
-import setup
+import utils
 import random
 import cProfile
 from datetime import datetime, timezone
@@ -52,7 +52,7 @@ def run(tour, algorithm, report, iterations):
     # Plot significant partial efforts
     for i in range(len(efforts)):
         plotname = PATH + 'partial_' + str("%03d" % i)
-        partial = setup.State(efforts[i]['tour'],
+        partial = utils.State(efforts[i]['tour'],
                               efforts[i]['temp'],
                               an.cost(efforts[i]['tour']),
                               0.5,
@@ -97,7 +97,7 @@ def solve(tour, sa, mcmc, report, iterations):
 def main():
     # Main function. Parses arguments, initializes random problem, solves problem.
     
-    args = setup.arg_parser()
+    args = utils.arg_parser()
     OUTPUT.update({'size': args.size,
                    'iterations': args.iterations
                    })
@@ -105,11 +105,11 @@ def main():
     tour = []
     n = args.size
     for i in range(n):
-        i = setup.City(i, random.randint(0, n**2), random.randint(0, n**2))
+        i = utils.City(i, random.randint(0, n**2), random.randint(0, n**2))
         tour.append(i)
 
     # Display or save initial problem
-    problem = setup.State(tour,
+    problem = utils.State(tour,
                           1.0,
                           0,
                           0,
@@ -131,7 +131,7 @@ def main():
     print('time to solve was ' + str(results['sa']['duration']) + ' seconds')
 
     # Display or save solved tour
-    solution = setup.State(results['sa']['tour'],
+    solution = utils.State(results['sa']['tour'],
                            0,
                            results['sa']['cost'],
                            1,
